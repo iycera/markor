@@ -205,12 +205,18 @@ public class SettingsActivity extends MarkorBaseActivity {
                 return;
             }
 
-            if (eq(key, R.string.pref_key__language)) {
-                activityRetVal = RESULT.RESTART_REQ;
+            if (eq(key, R.string.pref_key__language, R.string.pref_key__font_family)) {
+                Activity activity = getActivity();
+                if (activity != null) {
+                    activity.recreate();
+                }
                 _appSettings.setRecreateMainRequired(true);
+                restartActivity();
             } else if (eq(key, R.string.pref_key__app_theme)) {
-                _appSettings.applyAppTheme();
-                getActivity().finish();
+                Activity activity = getActivity();
+                if (activity != null) {
+                    activity.recreate();
+                }
             } else if (eq(key, R.string.pref_key__theming_hide_system_statusbar)) {
                 activityRetVal = RESULT.RESTART_REQ;
                 _appSettings.setRecreateMainRequired(true);
@@ -381,4 +387,6 @@ public class SettingsActivity extends MarkorBaseActivity {
             return true;
         }
     }
+
+    
 }

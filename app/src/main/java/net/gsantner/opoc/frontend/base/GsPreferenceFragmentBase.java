@@ -251,11 +251,17 @@ public abstract class GsPreferenceFragmentBase<AS extends GsSharedPreferencesPro
     private synchronized void updatePreferenceChangedListeners(boolean shouldListen) {
         String tprefname = getSharedPreferencesName();
         if (shouldListen && tprefname != null && !_registeredPrefs.contains(tprefname)) {
+            if (_appSettings == null || _appSettings.getContext() == null) {
+                return;
+            }
             SharedPreferences preferences = _appSettings.getContext().getSharedPreferences(tprefname, Context.MODE_PRIVATE);
             _appSettings.registerPreferenceChangedListener(preferences, this);
             _registeredPrefs.add(tprefname);
         } else if (!shouldListen) {
             for (String prefname : _registeredPrefs) {
+                if (_appSettings == null || _appSettings.getContext() == null) {
+                    continue;
+                }
                 SharedPreferences preferences = _appSettings.getContext().getSharedPreferences(tprefname, Context.MODE_PRIVATE);
                 _appSettings.unregisterPreferenceChangedListener(preferences, this);
             }
@@ -266,6 +272,9 @@ public abstract class GsPreferenceFragmentBase<AS extends GsSharedPreferencesPro
     @Override
     public void onResume() {
         super.onResume();
+        if (_appSettings == null) {
+            _appSettings = getAppSettings(getContext());
+        }
         updatePreferenceChangedListeners(true);
         doUpdatePreferences(); // Invoked later
         onPreferenceScreenChangedPriv(this, getPreferenceScreen());
@@ -502,7 +511,7 @@ public abstract class GsPreferenceFragmentBase<AS extends GsSharedPreferencesPro
         Activity activity;
         if (isAdded() && (activity = getActivity()) != null) {
             Intent intent = getActivity().getIntent();
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);//Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | 
             activity.overridePendingTransition(0, 0);
             activity.finish();
             activity.overridePendingTransition(0, 0);
@@ -634,5 +643,11 @@ public abstract class GsPreferenceFragmentBase<AS extends GsSharedPreferencesPro
                 }
             }
         }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        _appSettings = getAppSettings(context);
     }
 }

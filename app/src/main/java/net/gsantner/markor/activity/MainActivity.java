@@ -98,7 +98,7 @@ public class MainActivity extends MarkorBaseActivity implements GsFileBrowserFra
         });
 
         setSupportActionBar(findViewById(R.id.toolbar));
-        optShowRate();
+        //optShowRate();// 注释掉到应用商店评分的弹窗
 
         // Setup viewpager
         _viewPager.setAdapter(new SectionsPagerAdapter(getSupportFragmentManager()));
@@ -226,11 +226,11 @@ public class MainActivity extends MarkorBaseActivity implements GsFileBrowserFra
         }
     }
 
-    private void optShowRate() {
+    private void optShowRate() {// 评分
         try {
             new com.pixplicity.generate.Rate.Builder(this)
-                    .setTriggerCount(4)
-                    .setMinimumInstallTime((int) TimeUnit.MINUTES.toMillis(30))
+                    .setTriggerCount(10000)// 使用4次触发
+                    .setMinimumInstallTime((int) TimeUnit.MINUTES.toMillis(30))// 安装时间30分钟后触发
                     .setFeedbackAction(() -> _cu.showGooglePlayEntryForThisApp(MainActivity.this))
                     .build().count().showRequest();
         } catch (Exception ignored) {
@@ -526,5 +526,11 @@ public class MainActivity extends MarkorBaseActivity implements GsFileBrowserFra
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return super.onReceiveKeyPress(getPosFragment(getCurrentPos()), keyCode, event) ? true : super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("MainActivity", "onDestroy: " + this);
     }
 }
